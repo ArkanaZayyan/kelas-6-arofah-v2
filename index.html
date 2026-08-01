@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Kelas — 6 AROFAH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board: #24382E;
+    --board-2: #2F4A3B;
+    --board-3: #1B2C22;
+    --paper: #F6F1E4;
+    --paper-dark: #EAE1CB;
+    --ink: #26332A;
+    --ink-soft: #5B6459;
+    --chalk: #F3EFE2;
+    --chalk-dim: #C9D3C6;
+    --yellow: #E8B94D;
+    --red: #C0392B;
+    --blue: #3A6EA5;
+    --line: rgba(246,241,228,0.18);
+    --radius: 10px;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family:'Space Grotesk', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background: var(--yellow); color:var(--board-3); }
+
+  /* ---------- HEADER / CHALKBOARD ---------- */
+  header.board{
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(255,255,255,0.05), transparent 60%),
+      linear-gradient(180deg, var(--board) 0%, var(--board-3) 100%);
+    color: var(--chalk);
+    position: relative;
+    padding: 2.4rem 1.5rem 5rem;
+    overflow: hidden;
+  }
+  header.board::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.025) 40px);
+    pointer-events:none;
+  }
+  .board-inner{
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    display:flex;
+    align-items:center;
+    gap: 0.6rem;
+  }
+  .eyebrow::before{
+    content:"";
+    width: 8px; height:8px; border-radius:50%;
+    background: var(--yellow);
+    box-shadow: 0 0 10px var(--yellow);
+  }
+  h1.chalk-title{
+    font-family:'Caveat', cursive;
+    font-weight: 700;
+    font-size: clamp(3.2rem, 9vw, 5.5rem);
+    line-height: 0.95;
+    margin: 0.3rem 0 0;
+    position: relative;
+    display: inline-block;
+  }
+  .chalk-underline{
+    display:block;
+    max-width: 420px;
+    margin-top: -8px;
+  }
+  .board-sub{
+    color: var(--chalk-dim);
+    font-size: 0.98rem;
+    max-width: 480px;
+    margin-top: 0.6rem;
+    line-height:1.5;
+  }
+  .board-sub b{ color: var(--chalk); }
+
+  /* ---------- NAV ---------- */
+  nav.tabs{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(246,241,228,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--paper-dark);
+  }
+  .tabs-inner{
+    max-width: 1100px;
+    margin: 0 auto;
+    display:flex;
+    gap: 0.4rem;
+    padding: 0.7rem 1.5rem;
+    overflow-x:auto;
+  }
+  .tab-btn{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.86rem;
+    border: 1px solid var(--paper-dark);
+    background: transparent;
+    color: var(--ink-soft);
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition: all 0.18s ease;
+  }
+  .tab-btn:hover{ border-color: var(--ink-soft); color: var(--ink); }
+  .tab-btn.active{
+    background: var(--board);
+    border-color: var(--board);
+    color: var(--chalk);
+  }
+
+  /* ---------- LAYOUT ---------- */
+  main{ max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+  section{ padding: 4rem 0; border-bottom: 1px dashed var(--paper-dark); }
+  section:last-of-type{ border-bottom:none; }
+
+  .section-head{ margin-bottom: 2.2rem; }
+  .section-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--red);
+    text-transform:uppercase;
+  }
+  .section-title{
+    font-family:'Caveat', cursive;
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin: 0.1rem 0 0.3rem;
+    color: var(--board);
+  }
+  .section-desc{ color: var(--ink-soft); max-width: 560px; font-size: 0.95rem; line-height:1.55; }
+
+  /* ---------- ORG CHART ---------- */
+  .tree{ display:flex; flex-direction:column; align-items:center; gap: 0; }
+  .tree-row{
+    display:flex;
+    justify-content:center;
+    flex-wrap: wrap;
+    gap: 1.4rem;
+    position: relative;
+    padding-top: 2.4rem;
+    width:100%;
+  }
+  .tree-row.first{ padding-top:0; }
+  .tree-row.first::before, .tree-row.first .stem{ display:none; }
+  .tree-row::before{
+    content:"";
+    position:absolute;
+    top: 0; left:50%;
+    width:1px; height: 1.1rem;
+    background: var(--ink-soft);
+    opacity:0.35;
+  }
+  .tree-row .bar{
+    position:absolute;
+    top: 1.1rem;
+    left: 22%; right: 22%;
+    height:1px;
+    background: var(--ink-soft);
+    opacity:0.35;
+  }
+  .tree-row.single .bar{ display:none; }
+  .stem{
+    position:absolute;
+    top: 1.1rem;
+    width:1px; height: 1.3rem;
+    background: var(--ink-soft);
+    opacity:0.35;
+  }
+
+  .node{
+    background: #fff;
+    border: 1px solid var(--paper-dark);
+    border-radius: var(--radius);
+    padding: 0.85rem 1.1rem;
+    min-width: 168px;
+    text-align:center;
+    box-shadow: 0 3px 0 var(--paper-dark);
+    position: relative;
+    transition: transform 0.15s ease;
+    cursor: pointer;
+  }
+  .node:hover{ transform: translateY(-3px); }
+  .node .role{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform:uppercase;
+    color: var(--red);
+  }
+  .node .name{ font-weight:700; margin-top:0.2rem; font-size:0.95rem; }
+  .node.head{
+    background: var(--board);
+    border-color: var(--board);
+    color: var(--chalk);
+    min-width: 210px;
+  }
+  .node.head .role{ color: var(--yellow); }
+  .node.head .name{ font-size:1.1rem; }
+
+  /* ---------- POPUP FOTO PENGURUS ---------- */
+  .profile-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background: rgba(27,44,34,0.72);
+    z-index: 100;
+    align-items:center;
+    justify-content:center;
+    padding: 1.2rem;
+  }
+  .profile-modal.open{ display:flex; }
+  .profile-card{
+    background: var(--paper);
+    width: 100%;
+    max-width: 320px;
+    border-radius: 16px;
+    padding: 1.6rem 1.4rem 1.4rem;
+    text-align:center;
+    position:relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  .profile-card .close{
+    position:absolute;
+    top: 0.7rem; right: 0.9rem;
+    cursor:pointer;
+    font-size: 1.4rem;
+    line-height:1;
+    color: var(--ink-soft);
+  }
+  .profile-card .close:hover{ color: var(--ink); }
+  .profile-card img{
+    width: 140px; height: 140px;
+    border-radius:50%;
+    object-fit:cover;
+    margin: 0 auto 1rem;
+    display:block;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    background: var(--paper-dark);
+  }
+  .profile-card .p-role{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color: var(--red);
+  }
+  .profile-card .p-name{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 1.7rem;
+    color: var(--board);
+    margin: 0.15rem 0 0.5rem;
+  }
+  .profile-card .p-tugas{
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height:1.5;
+  }
+
+  .seksi-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.9rem;
+    margin-top: 1.6rem;
+    width: 100%;
+  }
+  .seksi-card{
+    background:#fff;
+    border:1px solid var(--paper-dark);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+  }
+  .seksi-card .role{ font-family:'JetBrains Mono', monospace; font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); }
+  .seksi-card .name{ font-weight:700; margin-top:0.15rem; }
+
+  /* ---------- MATA PELAJARAN ---------- */
+  .subject-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+  .subject-card{
+    background: #fff;
+    border: 1px solid var(--paper-dark);
+    border-radius: 8px;
+    position:relative;
+    overflow:hidden;
+    padding: 1.1rem 1.1rem 1rem 1.4rem;
+    background-image: repeating-linear-gradient(180deg, transparent, transparent 27px, var(--paper-dark) 28px);
+  }
+  .subject-card::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0;
+    width:7px;
+    background: var(--c, var(--blue));
+  }
+  .subject-card .code{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    letter-spacing:0.06em;
+  }
+  .subject-card .subj-name{
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 0.15rem 0 0.6rem;
+  }
+  .subject-card .meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size: 0.82rem; color: var(--ink-soft);
+  }
+  .jp-badge{
+    font-family:'JetBrains Mono', monospace;
+    background: var(--paper);
+    border: 1px solid var(--paper-dark);
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.72rem;
+    color: var(--ink);
+  }
+  .subject-total{
+    margin-top: 1.4rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-align:right;
+  }
+  .subject-total b{ color: var(--ink); font-size:1rem; }
+
+  /* ---------- JADWAL ---------- */
+  .schedule-wrap{ overflow-x:auto; border:1px solid var(--paper-dark); border-radius:10px; }
+  table.schedule{ border-collapse:collapse; width:100%; min-width: 720px; font-size:0.84rem; }
+  table.schedule th, table.schedule td{
+    border: 1px solid var(--paper-dark);
+    padding: 0.55rem 0.6rem;
+    text-align:center;
+  }
+  table.schedule thead th{
+    background: var(--board);
+    color: var(--chalk);
+    font-weight:600;
+    font-size:0.78rem;
+  }
+  table.schedule td.time{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    background: var(--paper);
+    white-space:nowrap;
+  }
+  table.schedule td.subj{ font-weight:600; }
+  table.schedule tr.istirahat td{
+    background: repeating-linear-gradient(45deg, var(--paper-dark), var(--paper-dark) 6px, var(--paper) 6px, var(--paper) 12px);
+    font-family:'JetBrains Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+  }
+  .friday-note{ font-size:0.78rem; color:var(--ink-soft); margin-top:0.7rem; font-style:italic; }
+
+  /* ---------- JADWAL (versi foto: Level 6 Arofah) ---------- */
+  table.schedule-photo{
+    border-collapse:collapse;
+    width:100%;
+    min-width:640px;
+    background:#000;
+    color:#fff;
+  }
+  table.schedule-photo th, table.schedule-photo td{
+    border:1px solid rgba(255,255,255,0.25);
+    padding:0.65rem 0.6rem;
+    text-align:center;
+    font-size:0.86rem;
+  }
+  table.schedule-photo thead th.judul{
+    font-size:1rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    padding:0.9rem;
+  }
+  table.schedule-photo thead th.hari-label{
+    font-weight:600;
+    font-size:0.8rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--chalk-dim);
+  }
+  table.schedule-photo thead th.hari-nama{ font-weight:700; }
+  table.schedule-photo td.mtk{ background:#3d1930; font-weight:700; }
+  table.schedule-photo td.dhuha{ background:#111; border:2px solid #fff; font-weight:600; }
+  table.schedule-photo tr.istirahat td{
+    background: var(--yellow);
+    color:#2b2410;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    font-size:0.78rem;
+  }
+  table.schedule-photo tr.qailullah td{
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    font-size:0.8rem;
+  }
+  table.schedule-photo td.kosong{ color: var(--chalk-dim); }
+
+  /* ---------- PIKET ---------- */
+  .piket-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem;
+  }
+  .piket-card{
+    background:#fff;
+    border:1px solid var(--paper-dark);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    position:relative;
+  }
+  .piket-day{
+    font-family:'Caveat', cursive;
+    font-size: 1.7rem;
+    font-weight:700;
+    color: var(--board);
+    line-height:1;
+  }
+  .piket-tag{
+    display:inline-block;
+    margin-top:0.2rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--red);
+  }
+  .piket-names{ margin-top:0.6rem; font-size:0.85rem; line-height:1.7; color: var(--ink-soft); }
+  .piket-names span{ display:block; }
+
+  /* ---------- ANGGOTA KELAS ---------- */
+  .anggota-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 1.1rem;
+  }
+  .anggota-card{
+    background:#fff;
+    border:1px solid var(--paper-dark);
+    border-radius: 12px;
+    padding: 0.9rem 0.7rem 0.8rem;
+    text-align:center;
+  }
+  .anggota-card .foto{
+    width: 88px; height: 88px;
+    margin: 0 auto 0.6rem;
+    border-radius: 50%;
+    overflow:hidden;
+    background: var(--paper-dark);
+    border: 3px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--paper-dark);
+  }
+  .anggota-card .foto img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .anggota-card .anggota-nama{
+    font-size: 0.82rem;
+    font-weight:600;
+    color: var(--ink);
+    line-height:1.3;
+  }
+  .anggota-card .anggota-no{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--ink-soft);
+    letter-spacing:0.05em;
+  }
+
+  /* ---------- GALERI KELAS ---------- */
+  .galeri-scroll{
+    display:flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-bottom: 0.9rem;
+    -webkit-overflow-scrolling: touch;
+    cursor: grab;
+    user-select: none;
+  }
+  .galeri-scroll.dragging{ cursor: grabbing; scroll-behavior: auto; }
+  .galeri-scroll::-webkit-scrollbar{ height: 8px; }
+  .galeri-scroll::-webkit-scrollbar-track{ background: var(--paper-dark); border-radius: 4px; }
+  .galeri-scroll::-webkit-scrollbar-thumb{ background: var(--board); border-radius: 4px; }
+  .galeri-item{
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    width: 230px;
+    height: 165px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--paper-dark);
+    border: 1px solid var(--paper-dark);
+    box-shadow: 0 3px 0 var(--paper-dark);
+  }
+  .galeri-item img{
+    width:100%; height:100%;
+    object-fit: cover;
+    display:block;
+    cursor: zoom-in;
+    pointer-events: auto;
+  }
+  .galeri-hint{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    letter-spacing:0.04em;
+    margin-top: 0.6rem;
+    text-align:center;
+  }
+
+  .galeri-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background: rgba(10,15,12,0.92);
+    z-index: 100;
+    align-items:center;
+    justify-content:center;
+    padding: 1.2rem;
+  }
+  .galeri-modal.open{ display:flex; }
+  .galeri-modal img{
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+  .galeri-modal .close{
+    position:absolute;
+    top: 1.1rem; right: 1.3rem;
+    color:#fff;
+    font-size: 2rem;
+    line-height:1;
+    cursor:pointer;
+    opacity:0.85;
+  }
+  .galeri-modal .close:hover{ opacity:1; }
+
+  footer{
+    text-align:center;
+    padding: 2.5rem 1.5rem 3rem;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+  footer .sign{
+    font-family:'Caveat', cursive;
+    font-size:1.4rem;
+    color: var(--board);
+  }
+
+  @media (max-width: 640px){
+    header.board{ padding-bottom: 2.6rem; }
+    .section-title{ font-size:2.1rem; }
+  }
+
+  [data-reveal]{
+    opacity:0; transform: translateY(14px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  [data-reveal].in{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<header class="board">
+  <div class="board-inner">
+    <div class="eyebrow">Dashboard Kelas · Tahun Ajaran 2026/2027</div>
+    <h1 class="chalk-title">6 AROFAH</h1>
+    <svg class="chalk-underline" viewBox="0 0 420 20" width="100%" height="20">
+      <path d="M2 12 Q 80 4, 160 11 T 320 9 T 418 12" stroke="#E8B94D" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/>
+    </svg>
+    <p class="board-sub">Wali kelas <b>Linda Marliani, S.Pd.</b> · 24 siswa · Ruang kelas <b>Lantai 2</b><br></p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" data-target="struktur">Struktur Kelas</button>
+    <button class="tab-btn" data-target="mapel">Mata Pelajaran</button>
+    <button class="tab-btn" data-target="jadwal">Jadwal Pelajaran</button>
+    <button class="tab-btn" data-target="piket">Piket Kelas</button>
+    <button class="tab-btn" data-target="anggota">Anggota Kelas</button>
+    <button class="tab-btn" data-target="galeri">Galeri Kelas</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- STRUKTUR -->
+  <section id="struktur">
+    <div class="section-head" data-reveal>
+      <div class="section-num">01 — Organisasi</div>
+      <h2 class="section-title">Struktur Kelas</h2>
+      <p class="section-desc">Susunan pengurus kelas 6 AROFAH, dari wali kelas sampai seksi-seksi yang menjalankan kegiatan harian.</p>
+    </div>
+
+    <div class="tree" data-reveal>
+      <div class="tree-row first single">
+        <div class="node head" onclick="showProfile('Wali Kelas','Linda Marliani, S.Pd.','ust linda.jpg','Membimbing dan mengawasi jalannya kelas.')">
+          <div class="role">Wali Kelas</div>
+          <div class="name">Linda Marliani, S.Pd.</div>
+        </div>
+      </div>
+
+          <div class="tree-row" data-reveal>
+      <div class="tree-row first single">
+        <div class="node head" onclick="showProfile('Guru Kelas','Nur Innayah, S.Pd.','ust ina.jpg','Membimbing dan mengawasi jalannya kelas.')">
+          <div class="role">Guru Kelas</div>
+          <div class="name">Nur Innayah, S.Pd.</div>
+        </div>
+      </div>
+
+      <div class="tree-row">
+        <div class="bar"></div>
+        <div class="stem" style="left:34%;"></div>
+        <div class="stem" style="left:66%;"></div>
+        <div class="node" onclick="showProfile('Ketua Kelas','Saka','saka.jpg','Memimpin jalannya organisasi kelas.')">
+          <div class="role">Ketua Kelas</div>
+          <div class="name">Saka</div>
+        </div>
+        <div class="node" onclick="showProfile('Wakil Ketua','Fariski','wakil.jpg','Membantu Ketua Kelas.')">
+          <div class="role">Wakil Ketua</div>
+          <div class="name">Fariski</div>
+        </div>
+      </div>
+
+      <div class="tree-row">
+        <div class="bar" style="left:8%; right:8%;"></div>
+        <div class="stem" style="left:16%;"></div>
+        <div class="stem" style="left:38%;"></div>
+        <div class="stem" style="left:62%;"></div>
+        <div class="stem" style="left:84%;"></div>
+        <div class="node" onclick="showProfile('Sekretaris','Al Fatih','al fatih.jpg','Mencatat administrasi kelas.')">
+          <div class="role">Sekretaris </div>
+          <div class="name">Al Fatih</div>
+        </div>
+
+        <div class="node" onclick="showProfile('Bendahara','Innara','innara.jpg','Mengelola keuangan kelas.')">
+          <div class="role">Bendahara </div>
+          <div class="name">Innara</div>
+        </div>
+
+      <div class="seksi-grid">
+        <div class="seksi-card"><div class="role">Seksi Kebersihan</div>Arimbi<div class="name"></div></div>
+        <div class="seksi-card"><div class="role">Seksi Keamanan</div>Adzka<div class="name"></div></div>
+        <div class="seksi-card"><div class="role">Seksi Ibadah</div>Dimas & Sarah<div class="name"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POPUP FOTO PENGURUS -->
+  <div class="profile-modal" id="profileModal">
+    <div class="profile-card">
+      <span class="close" onclick="closeProfile()">&times;</span>
+      <img id="p-foto" src="" alt="">
+      <div class="p-role" id="p-role"></div>
+      <div class="p-name" id="p-name"></div>
+      <p class="p-tugas" id="p-tugas"></p>
+    </div>
+  </div>
+
+
+  <!-- MATA PELAJARAN -->
+  <section id="mapel">
+    <div class="section-head" data-reveal>
+      <div class="section-num">02 — Kurikulum</div>
+      <h2 class="section-title">Mata Pelajaran</h2>
+      <p class="section-desc">Daftar mata pelajaran beserta jumlah jam pelajaran (JP) per minggu, dihitung otomatis dari jadwal Level 6 Arofah.</p>
+    </div>
+
+    <div class="subject-grid" id="subject-grid" data-reveal></div>
+    <div class="subject-total">Total <b id="total-jp">—</b> JP / minggu</div>
+  </section>
+
+  <!-- JADWAL -->
+  <section id="jadwal">
+    <div class="section-head" data-reveal>
+      <div class="section-num">03 — Timetable</div>
+      <h2 class="section-title">Jadwal Pelajaran Level 6 Arofah</h2>
+      <p class="section-desc">Jadwal Senin–Jumat, lengkap dengan kegiatan ibadah harian (Al Qur'an, Sholat Dhuha, Qailullah, Sholat Jumat) dan waktu istirahat.</p>
+    </div>
+
+    <div class="schedule-wrap" data-reveal>
+      <table class="schedule-photo" id="schedule-table">
+        <thead>
+          <tr><th class="judul" colspan="5">Jadwal Pelajaran Level 6 Arofah</th></tr>
+          <tr><th class="hari-label" colspan="5">Hari</th></tr>
+          <tr>
+            <th class="hari-nama" data-day="0">Senin</th>
+            <th class="hari-nama" data-day="1">Selasa</th>
+            <th class="hari-nama" data-day="2">Rabu</th>
+            <th class="hari-nama" data-day="3">Kamis</th>
+            <th class="hari-nama" data-day="4">Jum'at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="subj">Upacara</td>
+            <td class="subj" colspan="3">Ikrar, Morning Meeting, Khatmul Qur'an dan Asmaul</td>
+            <td class="subj dhuha" rowspan="2">Sholat Dhuha</td>
+          </tr>
+          <tr>
+            <td class="subj">Upacara</td>
+            <td class="subj">Olahraga</td>
+            <td class="subj">TIK</td>
+            <td class="subj">Al Qur'an</td>
+          </tr>
+          <tr>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj">Olahraga</td>
+            <td class="subj">TIK</td>
+            <td class="subj">Al Qur'an</td>
+            <td class="subj">Al Ma'tsurat</td>
+          </tr>
+          <tr>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj">IPAS</td>
+            <td class="subj">Al Qur'an</td>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj">B. Indonesia</td>
+          </tr>
+          <tr>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj">IPAS</td>
+            <td class="subj">Al Qur'an</td>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj">B. Indonesia</td>
+          </tr>
+          <tr class="istirahat"><td colspan="5">Istirahat</td></tr>
+          <tr>
+            <td class="subj">Al Qur'an</td>
+            <td class="subj">PAI</td>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj">B. Inggris</td>
+          </tr>
+          <tr>
+            <td class="subj">Al Qur'an</td>
+            <td class="subj">PAI</td>
+            <td class="subj mtk">Matematika</td>
+            <td class="subj">PAI Hadits/</td>
+            <td class="subj">PLH</td>
+          </tr>
+          <tr class="qailullah"><td colspan="5">Qailullah</td></tr>
+          <tr class="istirahat"><td colspan="5">Istirahat</td></tr>
+          <tr>
+            <td class="subj">Pend.</td>
+            <td class="subj">Al Qur'an</td>
+            <td class="subj">B. Arab</td>
+            <td class="subj">B. Inggris</td>
+            <td class="subj">Sholat Jumat</td>
+          </tr>
+          <tr>
+            <td class="subj">Pend.</td>
+            <td class="subj">Al Qur'an</td>
+            <td class="subj">B. Arab</td>
+            <td class="subj">B. Inggris</td>
+            <td class="subj">BPI</td>
+          </tr>
+          <tr>
+            <td class="subj">B. Indonesia</td>
+            <td class="subj">B. Indonesia</td>
+            <td class="subj">IPAS</td>
+            <td class="subj">Seni Budaya</td>
+            <td class="subj">BPI</td>
+          </tr>
+          <tr>
+            <td class="subj">B. Indonesia</td>
+            <td class="subj">B. Indonesia</td>
+            <td class="subj">IPAS</td>
+            <td class="subj">Seni Budaya</td>
+            <td class="subj kosong">-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="friday-note">*Jum'at diakhiri lebih awal untuk persiapan Sholat Jumat. Istirahat dan Qailullah adalah waktu jeda/istirahat siang untuk seluruh kelas.</p>
+  </section>
+
+  <!-- PIKET -->
+  <section id="piket">
+    <div class="section-head" data-reveal>
+      <div class="section-num">04 — Tugas Harian</div>
+      <h2 class="section-title">Jadwal Piket Kelas</h2>
+      <p class="section-desc">Regu piket bertanggung jawab menjaga kebersihan dan kerapian kelas setiap harinya.</p>
+    </div>
+    <div class="piket-grid" id="piket-grid" data-reveal></div>
+  </section>
+
+  <!-- ANGGOTA KELAS -->
+  <section id="anggota">
+    <div class="section-head" data-reveal>
+      <div class="section-num">05 — Warga Kelas</div>
+      <h2 class="section-title">Anggota Kelas</h2>
+      <p class="section-desc">24 siswa kelas 6 AROFAH. Ganti nama dan foto tiap anak sesuai data aslinya di bawah ini.</p>
+    </div>
+
+    <!--
+      Cara pakai:
+      1. Simpan foto tiap siswa (disarankan persegi, akan otomatis dipotong bulat) di folder "anggota/"
+         satu folder dengan file index.html ini, misalnya: anggota/siswa-01.jpg
+      2. Ganti atribut src pada tiap <img> di bawah sesuai nama file fotomu.
+      3. Ganti teks di dalam .anggota-nama dengan nama siswa yang sebenarnya.
+      4. Kalau fotonya belum ada / gagal dimuat, kartu tetap tampil rapi (lingkaran kosong), tidak ada ikon gambar rusak.
+      5. Butuh lebih/kurang dari 24 kartu? tinggal copy/paste atau hapus salah satu blok <div class="anggota-card">...</div>.
+    -->
+    <div class="anggota-grid" id="anggota-grid" data-reveal>
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-01.jpg" alt="Nama Siswa 1" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 1</div>
+        <div class="anggota-no">No. 1</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-02.jpg" alt="Nama Siswa 2" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 2</div>
+        <div class="anggota-no">No. 2</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-03.jpg" alt="Nama Siswa 3" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 3</div>
+        <div class="anggota-no">No. 3</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-04.jpg" alt="Nama Siswa 4" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 4</div>
+        <div class="anggota-no">No. 4</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-05.jpg" alt="Nama Siswa 5" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 5</div>
+        <div class="anggota-no">No. 5</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-06.jpg" alt="Nama Siswa 6" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 6</div>
+        <div class="anggota-no">No. 6</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-07.jpg" alt="Nama Siswa 7" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 7</div>
+        <div class="anggota-no">No. 7</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-08.jpg" alt="Nama Siswa 8" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 8</div>
+        <div class="anggota-no">No. 8</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-09.jpg" alt="Nama Siswa 9" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 9</div>
+        <div class="anggota-no">No. 9</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-10.jpg" alt="Nama Siswa 10" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 10</div>
+        <div class="anggota-no">No. 10</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-11.jpg" alt="Nama Siswa 11" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 11</div>
+        <div class="anggota-no">No. 11</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-12.jpg" alt="Nama Siswa 12" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 12</div>
+        <div class="anggota-no">No. 12</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-13.jpg" alt="Nama Siswa 13" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 13</div>
+        <div class="anggota-no">No. 13</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-14.jpg" alt="Nama Siswa 14" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 14</div>
+        <div class="anggota-no">No. 14</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-15.jpg" alt="Nama Siswa 15" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 15</div>
+        <div class="anggota-no">No. 15</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-16.jpg" alt="Nama Siswa 16" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 16</div>
+        <div class="anggota-no">No. 16</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-17.jpg" alt="Nama Siswa 17" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 17</div>
+        <div class="anggota-no">No. 17</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-18.jpg" alt="Nama Siswa 18" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 18</div>
+        <div class="anggota-no">No. 18</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-19.jpg" alt="Nama Siswa 19" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 19</div>
+        <div class="anggota-no">No. 19</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-20.jpg" alt="Nama Siswa 20" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 20</div>
+        <div class="anggota-no">No. 20</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-21.jpg" alt="Nama Siswa 21" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 21</div>
+        <div class="anggota-no">No. 21</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-22.jpg" alt="Nama Siswa 22" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 22</div>
+        <div class="anggota-no">No. 22</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-23.jpg" alt="Nama Siswa 23" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 23</div>
+        <div class="anggota-no">No. 23</div>
+      </div>
+
+      <div class="anggota-card">
+        <div class="foto"><img src="anggota/siswa-24.jpg" alt="Nama Siswa 24" onerror="this.style.display='none'"></div>
+        <div class="anggota-nama">Nama Siswa 24</div>
+        <div class="anggota-no">No. 24</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERI KELAS -->
+  <section id="galeri">
+    <div class="section-head" data-reveal>
+      <div class="section-num">06 — Kenangan</div>
+      <h2 class="section-title">Galeri Kelas</h2>
+      <p class="section-desc">Geser ke kiri/kanan untuk lihat foto-foto kegiatan kelas. Klik foto untuk memperbesar.</p>
+    </div>
+
+    <!--
+      Cara pakai:
+      1. Simpan foto-foto kegiatan kelas di folder "galeri/" satu tempat dengan file index.html ini,
+         misalnya: galeri/foto-01.jpg, galeri/foto-02.jpg, dst.
+      2. Ganti atribut src pada tiap <img> di bawah sesuai nama file fotomu.
+      3. Foto bisa digeser (swipe di HP, drag pakai mouse di komputer, atau scroll horizontal di trackpad).
+      4. Klik salah satu foto untuk melihatnya dalam ukuran penuh.
+      5. Butuh lebih/kurang foto? tinggal copy/paste atau hapus salah satu blok <div class="galeri-item">...</div>.
+    -->
+    <div class="galeri-scroll" id="galeri-scroll" data-reveal>
+      <div class="galeri-item">
+        <img src="galeri.jpg" alt="Foto kegiatan kelas 1" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-02.jpg" alt="Foto kegiatan kelas 2" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-03.jpg" alt="Foto kegiatan kelas 3" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-04.jpg" alt="Foto kegiatan kelas 4" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-05.jpg" alt="Foto kegiatan kelas 5" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-06.jpg" alt="Foto kegiatan kelas 6" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-07.jpg" alt="Foto kegiatan kelas 7" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-08.jpg" alt="Foto kegiatan kelas 8" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-09.jpg" alt="Foto kegiatan kelas 9" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+
+      <div class="galeri-item">
+        <img src="galeri/foto-10.jpg" alt="Foto kegiatan kelas 10" onerror="this.parentElement.style.display='none'" onclick="openGaleri(this.src, this.alt)">
+      </div>
+    </div>
+    <p class="galeri-hint">← geser untuk lihat foto lainnya →</p>
+  </section>
+
+  <!-- LIGHTBOX GALERI -->
+  <div class="galeri-modal" id="galeriModal">
+    <span class="close" onclick="closeGaleri()">&times;</span>
+    <img id="galeri-modal-img" src="" alt="">
+  </div>
+
+</main>
+
+<footer>
+  <div class="sign">Semangat belajar, 6 AROFAH! ✎</div>
+  <p>Dashboard kelas · edit teks, nama, dan jadwal langsung di file HTML ini sesuai kondisi kelasmu.</p>
+</footer>
+
+<script>
+  // ---------- DATA ----------
+  // Jadwal pelajaran sudah ditulis langsung sebagai tabel statis di HTML
+  // (section #jadwal), persis mengikuti jadwal Level 6 Arofah.
+  // Palet warna dipakai bergiliran untuk kartu mata pelajaran di bawah.
+  const subjectColors = ["#3A6EA5","#C0392B","#7A5C9E","#4C8C4A","#E8B94D","#D97D3B","#9B59B6","#5B7F8C","#2E86AB","#B5495B","#6B8E23","#A0522D"];
+
+  const piket = [
+    { day:"Senin", names:["Ahmad Fauzi","Putri Lestari","Yoga Pratama","Salsa Amelia"] },
+    { day:"Selasa", names:["Dewi Anggraini","Rizky Ramadhan","Fajar Nugraha","Dimas Aditya"] },
+    { day:"Rabu", names:["Nadia Salsabila","Bagus Prasetyo","Aisyah Putri","Reza Firmansyah"] },
+    { day:"Kamis", names:["Putri Lestari","Yoga Pratama","Nadia Salsabila","Ahmad Fauzi"] },
+    { day:"Jumat", names:["Fajar Nugraha","Salsa Amelia","Dimas Aditya","Dewi Anggraini"] },
+  ];
+
+  // ---------- RENDER: mapel (dihitung dari tabel jadwal) ----------
+  const jpCounts = {};
+  document.querySelectorAll("#schedule-table td.subj").forEach(td => {
+    const name = td.textContent.trim();
+    if(!name || name === "-") return;
+    const weight = (td.colSpan || 1) * (td.rowSpan || 1);
+    jpCounts[name] = (jpCounts[name] || 0) + weight;
+  });
+
+  const grid = document.getElementById("subject-grid");
+  Object.entries(jpCounts)
+    .sort((a,b) => b[1]-a[1])
+    .forEach(([name, jp], i) => {
+      const card = document.createElement("div");
+      card.className = "subject-card";
+      card.style.setProperty("--c", subjectColors[i % subjectColors.length]);
+      card.innerHTML = `
+        <div class="subj-name">${name}</div>
+        <div class="meta-row">
+          <span class="jp-badge">${jp} JP/minggu</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+  document.getElementById("total-jp").textContent = Object.values(jpCounts).reduce((a,b)=>a+b,0);
+
+  // ---------- RENDER: piket ----------
+  const pgrid = document.getElementById("piket-grid");
+  piket.forEach((p) => {
+    const card = document.createElement("div");
+    card.className = "piket-card";
+    card.innerHTML = `
+      <div class="piket-day">${p.day}</div>
+      <div class="piket-tag">Regu piket</div>
+      <div class="piket-names">${p.names.map(n=>`<span>${n}</span>`).join("")}</div>`;
+    pgrid.appendChild(card);
+  });
+
+  // ---------- Tabs ----------
+  const tabs = document.querySelectorAll(".tab-btn");
+  const sections = [...tabs].map(t => document.getElementById(t.dataset.target));
+  tabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.getElementById(btn.dataset.target).scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+  });
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        tabs.forEach(t=>t.classList.toggle("active", t.dataset.target === e.target.id));
+      }
+    });
+  }, { rootMargin: "-40% 0px -50% 0px" });
+  sections.forEach(s => s && io.observe(s));
+
+  // ---------- Reveal on scroll ----------
+  const ro = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add("in"); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll("[data-reveal]").forEach(el => ro.observe(el));
+
+  // ---------- Popup foto pengurus (Struktur Kelas) ----------
+  function showProfile(role, name, foto, tugas){
+    document.getElementById("p-role").textContent = role;
+    document.getElementById("p-name").textContent = name;
+    document.getElementById("p-foto").src = foto;
+    document.getElementById("p-foto").alt = name;
+    document.getElementById("p-tugas").textContent = tugas;
+    document.getElementById("profileModal").classList.add("open");
+  }
+  function closeProfile(){
+    document.getElementById("profileModal").classList.remove("open");
+  }
+  document.getElementById("profileModal").addEventListener("click", (e)=>{
+    if(e.target.id === "profileModal") closeProfile();
+  });
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape") closeProfile();
+  });
+
+  // ---------- Galeri Kelas: geser (drag) + lightbox ----------
+  const galeriScroll = document.getElementById("galeri-scroll");
+  if(galeriScroll){
+    let isDown = false, startX = 0, scrollLeft = 0, moved = false;
+
+    const dragStart = (x) => {
+      isDown = true; moved = false;
+      galeriScroll.classList.add("dragging");
+      startX = x - galeriScroll.offsetLeft;
+      scrollLeft = galeriScroll.scrollLeft;
+    };
+    const dragMove = (x) => {
+      if(!isDown) return;
+      const walk = x - galeriScroll.offsetLeft - startX;
+      if(Math.abs(walk) > 5) moved = true;
+      galeriScroll.scrollLeft = scrollLeft - walk;
+    };
+    const dragEnd = () => {
+      isDown = false;
+      galeriScroll.classList.remove("dragging");
+    };
+
+    galeriScroll.addEventListener("mousedown", (e) => dragStart(e.pageX));
+    galeriScroll.addEventListener("mousemove", (e) => dragMove(e.pageX));
+    window.addEventListener("mouseup", dragEnd);
+    galeriScroll.addEventListener("mouseleave", dragEnd);
+
+    // klik foto dibatalkan kalau user baru saja drag/geser
+    galeriScroll.addEventListener("click", (e) => {
+      if(moved) e.stopPropagation();
+    }, true);
+  }
+
+  function openGaleri(src, alt){
+    const img = document.getElementById("galeri-modal-img");
+    img.src = src;
+    img.alt = alt || "";
+    document.getElementById("galeriModal").classList.add("open");
+  }
+  function closeGaleri(){
+    document.getElementById("galeriModal").classList.remove("open");
+  }
+  document.getElementById("galeriModal").addEventListener("click", (e)=>{
+    if(e.target.id === "galeriModal") closeGaleri();
+  });
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape") closeGaleri();
+  });
+</script>
+
+</body>
+</html>
