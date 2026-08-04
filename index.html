@@ -505,6 +505,39 @@
     letter-spacing:0.05em;
   }
 
+  .guru-row{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 220px));
+    justify-content:center;
+    gap: 1.1rem;
+    margin-bottom: 1.8rem;
+    padding-bottom: 1.8rem;
+    border-bottom: 1px dashed var(--paper-dark);
+  }
+  .anggota-card.guru{
+    background: var(--board);
+    border-color: var(--board);
+  }
+  .anggota-card.guru .foto{
+    width: 96px; height: 96px;
+    border: 3px solid var(--yellow);
+  }
+  .anggota-card.guru .anggota-role{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 0.15rem;
+  }
+  .anggota-card.guru .anggota-nama{
+    color: var(--chalk);
+    font-size: 0.88rem;
+  }
+  .anggota-card.guru .anggota-no{
+    color: var(--chalk-dim);
+  }
+
   /* ---------- GALERI KELAS ---------- */
   .galeri-scroll{
     display:flex;
@@ -832,7 +865,7 @@
     <div class="section-head" data-reveal>
       <div class="section-num">05 — Warga Kelas</div>
       <h2 class="section-title">Anggota Kelas</h2>
-      <p class="section-desc">24 siswa kelas 6 AROFAH.</p>
+      <p class="section-desc">Wali kelas, guru kelas, dan 24 siswa kelas 6 AROFAH.</p>
     </div>
 
     <!--
@@ -844,6 +877,20 @@
       4. Kalau fotonya belum ada / gagal dimuat, kartu tetap tampil rapi (lingkaran kosong), tidak ada ikon gambar rusak.
       5. Butuh lebih/kurang dari 24 kartu? tinggal copy/paste atau hapus salah satu blok <div class="anggota-card">...</div>.
     -->
+    <div class="guru-row" data-reveal>
+      <div class="anggota-card guru">
+        <div class="foto"><img src="ust linda.jpg" alt="Linda Marliani, S.Pd." onerror="this.style.display='none'"></div>
+        <div class="anggota-role">Wali Kelas</div>
+        <div class="anggota-nama">Linda Marliani, S.Pd.</div>
+      </div>
+
+      <div class="anggota-card guru">
+        <div class="foto"><img src="ust ina.jpg" alt="Nur Innayah, S.Pd." onerror="this.style.display='none'"></div>
+        <div class="anggota-role">Guru Kelas</div>
+        <div class="anggota-nama">Nur Innayah, S.Pd.</div>
+      </div>
+    </div>
+
     <div class="anggota-grid" id="anggota-grid" data-reveal>
       <div class="anggota-card">
         <div class="foto"><img src="anggota/siswa-01.jpg" alt="Nama Siswa 1" onerror="this.style.display='none'"></div>
